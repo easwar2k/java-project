@@ -25,9 +25,15 @@ def products():
 
 @app.route("/invoice")
 def invoice():
-    # DEMO-3: OS command injection through a shell command (CWE-78)
-    order_id = request.args.get("order")
-    return subprocess.check_output("cat invoices/" + order_id + ".txt", shell=True)
+    # Fixed: no shell, and the order id must be a number, so it cannot inject commands or paths.
+    try:
+        order_id = int(request.args.get("order", ""))
+    except ValueError:
+        return {"error": "invalid order id"}, 400
+    with open(f"invoices/{order_id}.txt") as f:
+        return f.read()
+
+
 
 
 @app.route("/")
