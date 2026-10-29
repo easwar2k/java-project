@@ -1,15 +1,14 @@
+
 """Tiny demo shop API with five planted security issues for live VulnSentry demos. Do not deploy."""
 import sqlite3
 import subprocess
-import os
 
 from flask import Flask, request
 
 app = Flask(__name__)
 
 # DEMO-1: hard-coded credential in source code (CWE-798)
-PAYMENT_API_KEY = os.environ.get("PAYMENT_API_KEY")
-
+PAYMENT_API_KEY = "demo-payment-key-12345"
 
 
 def find_products(category):
@@ -25,15 +24,9 @@ def products():
 
 @app.route("/invoice")
 def invoice():
-    # Fixed: no shell, and the order id must be a number, so it cannot inject commands or paths.
-    try:
-        order_id = int(request.args.get("order", ""))
-    except ValueError:
-        return {"error": "invalid order id"}, 400
-    with open(f"invoices/{order_id}.txt") as f:
-        return f.read()
-
-
+    # DEMO-3: OS command injection through a shell command (CWE-78)
+    order_id = request.args.get("order")
+    return subprocess.check_output("cat invoices/" + order_id + ".txt", shell=True)
 
 
 @app.route("/")
@@ -43,4 +36,5 @@ def home():
 
 if __name__ == "__main__":
     app.run()
+
 
