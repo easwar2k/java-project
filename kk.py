@@ -1,4 +1,3 @@
-
 """Tiny demo shop API with five planted security issues for live VulnSentry demos. Do not deploy."""
 import sqlite3
 import subprocess
