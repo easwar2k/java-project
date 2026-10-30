@@ -9,11 +9,13 @@ app = Flask(__name__)
 # DEMO-1: hard-coded credential in source code (CWE-798)
 PAYMENT_API_KEY = "demo-payment-key-12345"
 
-
 def find_products(category):
-    # DEMO-2: SQL injection, input concatenated into the query (CWE-89)
+    # Fixed: parameterised query; the value is passed separately, never joined into the SQL text (CWE-89)
     conn = sqlite3.connect("shop.db")
-    return conn.execute("SELECT name, price FROM products WHERE category = '" + category + "'").fetchall()
+    return conn.execute(
+        "SELECT name, price FROM products WHERE category = ?",
+        (category,),
+    ).fetchall()
 
 
 @app.route("/products")
